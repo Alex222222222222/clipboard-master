@@ -10,7 +10,7 @@ repository = "https://github.com/DoumanAsh/clipboard-master"
 
 license = "MIT"
 readme = "README.md"
-edition = "2018"
+edition = "2021"
 
 [target.'cfg(windows)'.dependencies]
 windows-win = "2"
