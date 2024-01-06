@@ -58,7 +58,7 @@ pub enum CallbackResult {
     ///Stop handling messages.
     Stop,
     ///Special variant to propagate IO Error from callback.
-    StopWithError(io::Error)
+    StopWithError(io::Error),
 }
 
 ///Clipboard master.
@@ -69,14 +69,12 @@ pub enum CallbackResult {
 ///
 ///- On `windows` it creates dummy window that monitors each clipboard change message.
 pub struct Master<H> {
-    handler: H
+    handler: H,
 }
 
 impl<H: ClipboardHandler> Master<H> {
     ///Creates new instance.
     pub fn new(handler: H) -> Self {
-        Master {
-            handler
-        }
+        Master { handler }
     }
 }

@@ -1,17 +1,10 @@
 use std::io;
 
-use windows_win::{
-    raw,
-    Window,
-    Messages
-};
+use windows_win::{raw, Messages, Window};
 
-use winapi::um::winuser::{
-    AddClipboardFormatListener,
-    RemoveClipboardFormatListener
-};
+use winapi::um::winuser::{AddClipboardFormatListener, RemoveClipboardFormatListener};
 
-use crate::{ClipboardHandler, CallbackResult, Master};
+use crate::{CallbackResult, ClipboardHandler, Master};
 
 ///Clipboard listener guard.
 ///
@@ -44,35 +37,38 @@ impl Drop for ClipboardListener {
 impl<H: ClipboardHandler> Master<H> {
     ///Starts Master by creating dummy window and listening clipboard update messages.
     pub fn run(&mut self) -> io::Result<()> {
-        let window = Window::from_builder(raw::window::Builder::new().class_name("STATIC").parent_message())?;
+        let window = Window::from_builder(
+            raw::window::Builder::new()
+                .class_name("STATIC")
+                .parent_message(),
+        )?;
 
         let _guard = ClipboardListener::new(&window)?;
 
         let mut result = Ok(());
 
-        for msg in Messages::new().window(Some(window.inner())).low(Some(797)).high(Some(797)) {
+        for msg in Messages::new()
+            .window(Some(window.inner()))
+            .low(Some(797))
+            .high(Some(797))
+        {
             match msg {
-                Ok(_) => {
-                    match self.handler.on_clipboard_change() {
-                        CallbackResult::Next => (),
-                        CallbackResult::Stop => break,
-                        CallbackResult::StopWithError(error) => {
-                            result = Err(error);
-                            break;
-                        }
-
+                Ok(_) => match self.handler.on_clipboard_change() {
+                    CallbackResult::Next => (),
+                    CallbackResult::Stop => break,
+                    CallbackResult::StopWithError(error) => {
+                        result = Err(error);
+                        break;
                     }
                 },
-                Err(error) => {
-                    match self.handler.on_clipboard_error(error) {
-                        CallbackResult::Next => (),
-                        CallbackResult::Stop => break,
-                        CallbackResult::StopWithError(error) => {
-                            result = Err(error);
-                            break;
-                        }
+                Err(error) => match self.handler.on_clipboard_error(error) {
+                    CallbackResult::Next => (),
+                    CallbackResult::Stop => break,
+                    CallbackResult::StopWithError(error) => {
+                        result = Err(error);
+                        break;
                     }
-                }
+                },
             }
         }
 

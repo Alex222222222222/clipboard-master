@@ -1,8 +1,8 @@
+use crate::{CallbackResult, ClipboardHandler, Master};
 use std::io;
-use crate::{ClipboardHandler, CallbackResult, Master};
 
-use objc::runtime::{Object, Class};
-use objc_id::{Id};
+use objc::runtime::{Class, Object};
+use objc_id::Id;
 
 #[link(name = "AppKit", kind = "framework")]
 extern "C" {}
@@ -14,12 +14,20 @@ impl<H: ClipboardHandler> Master<H> {
 
         let cls = match Class::get("NSPasteboard") {
             Some(cls) => cls,
-            None => return Err(io::Error::new(io::ErrorKind::Other, "Unable to create mac pasteboard")),
+            None => {
+                return Err(io::Error::new(
+                    io::ErrorKind::Other,
+                    "Unable to create mac pasteboard",
+                ))
+            }
         };
         let pasteboard: *mut Object = unsafe { msg_send![cls, generalPasteboard] };
 
         if pasteboard.is_null() {
-            return Err(io::Error::new(io::ErrorKind::Other, "Unable to create mac pasteboard"));
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Unable to create mac pasteboard",
+            ));
         }
 
         let pasteboard: Id<Object> = unsafe { Id::from_ptr(pasteboard) };
