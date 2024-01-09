@@ -12,11 +12,11 @@ impl<H: ClipboardHandler> Master<H> {
             ));
         }
         let clipboard = clipboard.unwrap();
-        let mut last = String::new();
+        let mut last = Some(String::new());
 
         loop {
             let res = clipboard.load_wait(
-                clipboard.getter.atoms.primary,
+                clipboard.getter.atoms.clipboard,
                 clipboard.getter.atoms.utf8_string,
                 clipboard.getter.atoms.property,
             );
@@ -37,6 +37,7 @@ impl<H: ClipboardHandler> Master<H> {
             let res = res.unwrap();
             let res = String::from_utf8_lossy(&res);
             let res = res.to_string();
+            let res = Some(res);
             if res == last {
                 continue;
             }
